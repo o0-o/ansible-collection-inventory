@@ -1,0 +1,13 @@
+# vim: ts=2:sw=2:sts=2:et:ft=yaml
+# -*- mode: yaml; yaml-indent-offset: 2; indent-tabs-mode: nil; -*-
+---
+releases:
+
+  - "1.0.0":
+    changes:
+      added:
+        - 'Initial release of `o0_o.inventory` collection.'
+        - 'New `facts` action plugin to gather inventory-level metadata.'
+        - Includes detection of inventory file path, executable flag, group
+          membership, and vars file resolution.
+        - Full unit test and integration test coverage for the facts plugin.
