@@ -11,15 +11,12 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import types
+from pathlib import Path
 
 
-def test_get_vars_files_with_dir(monkeypatch, action_base):
-    """
-    Verify that get_vars_files() collects valid files from a vars directory
-    with appropriate YAML extensions defined by the config plugin.
-    """
+def test_get_vars_files_with_dir(monkeypatch, action_base) -> None:
+    """Test get_vars_files collects valid files from directory."""
     # Fake file names in the directory
     fake_dir = Path('/tmp/vars/host_vars/myhost')
     fake_entries = [
@@ -57,11 +54,8 @@ def test_get_vars_files_with_dir(monkeypatch, action_base):
     assert not any('baz.txt' in m for m in matches)
 
 
-def test_get_vars_files_with_file(monkeypatch, action_base):
-    """
-    Verify that get_vars_files() detects single vars files with matching
-    extensions and warns when a directory exists at the same path.
-    """
+def test_get_vars_files_with_file(monkeypatch, action_base) -> None:
+    """Test get_vars_files detects single files with matching extensions."""
     path_with_ext = Path('/tmp/vars/host_vars/myhost.yml')
     fake_path = Path('/tmp/vars/host_vars/myhost')
 

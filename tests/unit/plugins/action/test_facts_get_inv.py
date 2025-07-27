@@ -15,15 +15,8 @@ import subprocess
 from pathlib import Path
 
 
-def test_get_inv(monkeypatch, action_base):
-    """
-    Verify that get_inv() collects inventory facts including:
-    - inventory name
-    - inventory file path
-    - group membership
-    - vars file paths
-    - executable file detection
-    """
+def test_get_inv(monkeypatch, action_base) -> None:
+    """Test get_inv collects inventory facts correctly."""
     tmp_dir = Path('/tmp/test-inventory')
     inv_file = tmp_dir / 'hosts'
     host_vars_file = tmp_dir / 'host_vars/testhost.yml'

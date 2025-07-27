@@ -14,11 +14,8 @@ from __future__ import annotations
 from pathlib import Path
 
 
-def test_run_inventory_facts(monkeypatch, action_base):
-    """
-    Verify that run() returns a valid ansible_facts structure with the
-    expected keys and fallback defaults.
-    """
+def test_run_inventory_facts(monkeypatch, action_base) -> None:
+    """Test run returns valid ansible_facts structure."""
     # Stub out file/directory and vars lookup logic
     monkeypatch.setattr(Path, 'is_file', lambda self: False)
     monkeypatch.setattr(Path, 'is_dir', lambda self: False)
