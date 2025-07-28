@@ -108,7 +108,7 @@ class ActionModule(ActionBase):
 
         hostname = task_vars.get('inventory_hostname', 'localhost')
         inv_facts = {'name': hostname}
-        self._display.v("Collecting inventory facts...")
+        self._display.v('Collecting inventory facts...')
 
         inv_file_path = Path(
             task_vars.get('inventory_file') or '/etc/ansible/hosts'

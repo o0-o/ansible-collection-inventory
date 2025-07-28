@@ -40,7 +40,7 @@ def test_get_inv(monkeypatch, action_base) -> None:
             self.returncode = 0
 
     def mock_run(*args, **kwargs):
-        return DummyCompletedProcess(stdout="ASCII text")  # simulate non-executable
+        return DummyCompletedProcess(stdout='ASCII text')  # simulate non-executable
 
     monkeypatch.setattr(subprocess, 'run', mock_run)
 
