@@ -17,7 +17,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from ansible_collections.o0_o.inventory.plugins.action.facts import (
-    ActionModule
+    ActionModule,
 )
 
 
@@ -30,5 +30,5 @@ def action_base() -> Generator[ActionModule, None, None]:
         play_context=MagicMock(),
         loader=MagicMock(),
         templar=MagicMock(),
-        shared_loader_obj=MagicMock()
+        shared_loader_obj=MagicMock(),
     )

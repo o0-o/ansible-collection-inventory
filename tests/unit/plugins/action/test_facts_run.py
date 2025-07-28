@@ -17,28 +17,27 @@ from pathlib import Path
 def test_run_inventory_facts(monkeypatch, action_base) -> None:
     """Test run returns valid ansible_facts structure."""
     # Stub out file/directory and vars lookup logic
-    monkeypatch.setattr(Path, 'is_file', lambda self: False)
-    monkeypatch.setattr(Path, 'is_dir', lambda self: False)
+    monkeypatch.setattr(Path, "is_file", lambda self: False)
+    monkeypatch.setattr(Path, "is_dir", lambda self: False)
 
     monkeypatch.setattr(
-        action_base, 'get_vars_files',
-        lambda vars_path, task_vars: []
+        action_base, "get_vars_files", lambda vars_path, task_vars: []
     )
 
     # Run with minimal viable task_vars
     task_vars = {
-        'inventory_hostname': 'localhost',
-        'group_names': ['ungrouped'],
-        'inventory_file': '/etc/ansible/hosts'
+        "inventory_hostname": "localhost",
+        "group_names": ["ungrouped"],
+        "inventory_file": "/etc/ansible/hosts",
     }
 
     action_base._task.run_once = True
     action_base._task.async_val = False
     result = action_base.run(task_vars=task_vars)
 
-    facts = result['ansible_facts']['o0_inventory']
+    facts = result["ansible_facts"]["o0_inventory"]
 
-    assert facts['name'] == 'localhost'
-    assert facts['path'] == '/etc/ansible/hosts'
-    assert facts['groups'] == ['ungrouped', 'all']
-    assert isinstance(facts['vars_paths'], list)
+    assert facts["name"] == "localhost"
+    assert facts["path"] == "/etc/ansible/hosts"
+    assert facts["groups"] == ["ungrouped", "all"]
+    assert isinstance(facts["vars_paths"], list)

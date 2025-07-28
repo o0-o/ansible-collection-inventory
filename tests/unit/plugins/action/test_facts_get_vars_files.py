@@ -18,66 +18,61 @@ from pathlib import Path
 def test_get_vars_files_with_dir(monkeypatch, action_base) -> None:
     """Test get_vars_files collects valid files from directory."""
     # Fake file names in the directory
-    fake_dir = Path('/tmp/vars/host_vars/myhost')
+    fake_dir = Path("/tmp/vars/host_vars/myhost")
     fake_entries = [
-        fake_dir / 'foo.yml',
-        fake_dir / 'bar.yaml',
-        fake_dir / 'baz.txt',
+        fake_dir / "foo.yml",
+        fake_dir / "bar.yaml",
+        fake_dir / "baz.txt",
     ]
 
     # Patch Path.iterdir to return fake entries
-    monkeypatch.setattr(Path, 'iterdir', lambda self: fake_entries)
+    monkeypatch.setattr(Path, "iterdir", lambda self: fake_entries)
 
     # Patch Path.is_dir to return True for the directory
-    monkeypatch.setattr(Path, 'is_dir', lambda self: self == fake_dir)
+    monkeypatch.setattr(Path, "is_dir", lambda self: self == fake_dir)
 
     # Patch Path.is_file to match known files
     monkeypatch.setattr(
-        Path,
-        'is_file',
-        lambda self: self.name in ['foo.yml', 'bar.yaml']
+        Path, "is_file", lambda self: self.name in ["foo.yml", "bar.yaml"]
     )
 
     # Mock config plugin to return .yml/.yaml extensions
     mock_lookup = types.SimpleNamespace()
-    mock_lookup.run = lambda args, variables=None: [['.yml', '.yaml']]
+    mock_lookup.run = lambda args, variables=None: [[".yml", ".yaml"]]
     monkeypatch.setattr(
         action_base._shared_loader_obj.lookup_loader,
-        'get',
-        lambda name, **kwargs: mock_lookup
+        "get",
+        lambda name, **kwargs: mock_lookup,
     )
 
     matches = action_base.get_vars_files(fake_dir, task_vars={})
 
-    assert '/tmp/vars/host_vars/myhost/foo.yml' in matches
-    assert '/tmp/vars/host_vars/myhost/bar.yaml' in matches
-    assert not any('baz.txt' in m for m in matches)
+    assert "/tmp/vars/host_vars/myhost/foo.yml" in matches
+    assert "/tmp/vars/host_vars/myhost/bar.yaml" in matches
+    assert not any("baz.txt" in m for m in matches)
 
 
 def test_get_vars_files_with_file(monkeypatch, action_base) -> None:
-    """Test get_vars_files detects single files with matching extensions."""
-    path_with_ext = Path('/tmp/vars/host_vars/myhost.yml')
-    fake_path = Path('/tmp/vars/host_vars/myhost')
+    """
+    Test get_vars_files detects single files with matching extensions.
+    """
+    path_with_ext = Path("/tmp/vars/host_vars/myhost.yml")
 
     # Patch is_dir to return False for the file path
-    monkeypatch.setattr(Path, 'is_dir', lambda self: False)
+    monkeypatch.setattr(Path, "is_dir", lambda self: False)
 
     # Patch is_file to return True only for the .yml file
-    monkeypatch.setattr(
-        Path,
-        'is_file',
-        lambda self: self == path_with_ext
-    )
+    monkeypatch.setattr(Path, "is_file", lambda self: self == path_with_ext)
 
     # Mock config plugin to return .yml as valid extension
     mock_lookup = types.SimpleNamespace()
-    mock_lookup.run = lambda args, variables=None: [['.yml']]
+    mock_lookup.run = lambda args, variables=None: [[".yml"]]
     monkeypatch.setattr(
         action_base._shared_loader_obj.lookup_loader,
-        'get',
-        lambda name, **kwargs: mock_lookup
+        "get",
+        lambda name, **kwargs: mock_lookup,
     )
 
     matches = action_base.get_vars_files(path_with_ext, task_vars={})
 
-    assert '/tmp/vars/host_vars/myhost.yml' in matches
+    assert "/tmp/vars/host_vars/myhost.yml" in matches

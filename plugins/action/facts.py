@@ -19,7 +19,8 @@ from ansible.plugins.action import ActionBase
 
 
 class ActionModule(ActionBase):
-    """Gather facts relating to the Ansible inventory.
+    """
+    Gather facts relating to the Ansible inventory.
 
     This action plugin collects information about the Ansible inventory
     including inventory file details, host and group variable paths,
@@ -44,7 +45,8 @@ class ActionModule(ActionBase):
     def get_vars_files(
         self, vars_path: Path, task_vars: Dict[str, Any]
     ) -> List[str]:
-        """Get list of variable files for a given path.
+        """
+        Get list of variable files for a given path.
 
         Searches for variable files with supported extensions in the
         specified path, supporting both files and directories.
@@ -61,14 +63,14 @@ class ActionModule(ActionBase):
         matches = []
 
         config_lookup = self._shared_loader_obj.lookup_loader.get(
-            'ansible.builtin.config',
+            "ansible.builtin.config",
             loader=self._loader,
-            templar=self._templar
+            templar=self._templar,
         )
         exts = config_lookup.run(
-            ['YAML_FILENAME_EXTENSIONS'], variables=task_vars
+            ["YAML_FILENAME_EXTENSIONS"], variables=task_vars
         )[0]
-        exts.append('')  # INI files may have no extension
+        exts.append("")  # INI files may have no extension
 
         if vars_path.is_dir():
             self._display.vv(f"Searching directory: {vars_path}")
@@ -89,16 +91,20 @@ class ActionModule(ActionBase):
 
         return matches
 
-    def get_inv(self, task_vars: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Collect comprehensive inventory information.
+    def get_inv(
+        self, task_vars: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Collect comprehensive inventory information.
 
         Gathers details about the inventory file, determines if it's
         executable, and discovers all host_vars and group_vars files
         that apply to the current host.
 
-        :param Optional[Dict[str, Any]] task_vars: Task variables dictionary
-        :returns Dict[str, Any]: Inventory information including file path,
-            variable paths, and group membership
+        :param Optional[Dict[str, Any]] task_vars: Task variables
+            dictionary
+        :returns Dict[str, Any]: Inventory information including file
+            path, variable paths, and group membership
 
         .. note::
            This method uses the 'file' command to determine if the
@@ -106,61 +112,63 @@ class ActionModule(ActionBase):
         """
         task_vars = task_vars or {}
 
-        hostname = task_vars.get('inventory_hostname', 'localhost')
-        inv_facts = {'name': hostname}
-        self._display.v('Collecting inventory facts...')
+        hostname = task_vars.get("inventory_hostname", "localhost")
+        inv_facts = {"name": hostname}
+        self._display.v("Collecting inventory facts...")
 
         inv_file_path = Path(
-            task_vars.get('inventory_file') or '/etc/ansible/hosts'
+            task_vars.get("inventory_file") or "/etc/ansible/hosts"
         )
-        inv_facts['path'] = str(inv_file_path)
+        inv_facts["path"] = str(inv_file_path)
         inv_dir_path = inv_file_path.parent
         self._display.vv(f"Inventory file: {inv_file_path}")
 
         try:
             result = subprocess.run(
-                ['file', '-b', '--', str(inv_file_path)],
+                ["file", "-b", "--", str(inv_file_path)],
                 capture_output=True,
-                encoding='utf-8',
-                check=True
+                encoding="utf-8",
+                check=True,
             )
-            inv_facts['exec'] = 'executable' in result.stdout
+            inv_facts["exec"] = "executable" in result.stdout
         except Exception as err:
             self._display.warning(
-                f'Unable to determine if {inv_file_path} is executable on '
+                f"Unable to determine if {inv_file_path} is executable on "
                 f"{hostname}: {err}"
             )
 
         # host_vars
-        host_vars_path = inv_dir_path / 'host_vars' / hostname
-        inv_facts['vars_paths'] = self.get_vars_files(
-            vars_path=host_vars_path,
-            task_vars=task_vars
+        host_vars_path = inv_dir_path / "host_vars" / hostname
+        inv_facts["vars_paths"] = self.get_vars_files(
+            vars_path=host_vars_path, task_vars=task_vars
         )
 
         # group_vars
-        groups = list(task_vars.get('group_names', [])) + ['all']
-        inv_facts['groups'] = groups
-        group_vars_dir = inv_dir_path / 'group_vars'
+        groups = list(task_vars.get("group_names", [])) + ["all"]
+        inv_facts["groups"] = groups
+        group_vars_dir = inv_dir_path / "group_vars"
         for group in groups:
             group_vars_path = group_vars_dir / group
-            inv_facts['vars_paths'] += self.get_vars_files(
-                vars_path=group_vars_path,
-                task_vars=task_vars
+            inv_facts["vars_paths"] += self.get_vars_files(
+                vars_path=group_vars_path, task_vars=task_vars
             )
 
         return inv_facts
 
     def run(
-        self, tmp: Optional[str] = None, task_vars: Optional[Dict[str, Any]] = None
+        self,
+        tmp: Optional[str] = None,
+        task_vars: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """Main entry point for the inventory facts action plugin.
+        """
+        Main entry point for the inventory facts action plugin.
 
         Gathers facts about the Ansible inventory and returns them under
         the o0_inventory fact namespace.
 
         :param Optional[str] tmp: Temporary directory path (unused)
-        :param Optional[Dict[str, Any]] task_vars: Task variables dictionary
+        :param Optional[Dict[str, Any]] task_vars: Task variables
+            dictionary
         :returns Dict[str, Any]: Standard Ansible result dictionary
 
         .. note::
@@ -175,10 +183,12 @@ class ActionModule(ActionBase):
         self.validate_argument_spec(argument_spec=argument_spec)
 
         result = super().run(tmp, task_vars)
-        result.update({
-            'ansible_facts': {
-                'o0_inventory': self.get_inv(task_vars=task_vars)
+        result.update(
+            {
+                "ansible_facts": {
+                    "o0_inventory": self.get_inv(task_vars=task_vars)
+                }
             }
-        })
+        )
 
         return result

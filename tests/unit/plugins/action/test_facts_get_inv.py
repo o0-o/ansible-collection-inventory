@@ -17,55 +17,57 @@ from pathlib import Path
 
 def test_get_inv(monkeypatch, action_base) -> None:
     """Test get_inv collects inventory facts correctly."""
-    tmp_dir = Path('/tmp/test-inventory')
-    inv_file = tmp_dir / 'hosts'
-    host_vars_file = tmp_dir / 'host_vars/testhost.yml'
-    group_vars_file = tmp_dir / 'group_vars/testgroup.yml'
+    tmp_dir = Path("/tmp/test-inventory")
+    inv_file = tmp_dir / "hosts"
+    host_vars_file = tmp_dir / "host_vars/testhost.yml"
+    group_vars_file = tmp_dir / "group_vars/testgroup.yml"
 
     # Simulate filesystem
     monkeypatch.setattr(
-        Path, 'is_file', lambda self: self.name.endswith('.yml')
+        Path, "is_file", lambda self: self.name.endswith(".yml")
     )
     monkeypatch.setattr(
-        Path, 'is_dir', lambda self: not self.name.endswith('.yml')
+        Path, "is_dir", lambda self: not self.name.endswith(".yml")
     )
     monkeypatch.setattr(
-        Path, 'iterdir', lambda self: [host_vars_file, group_vars_file]
+        Path, "iterdir", lambda self: [host_vars_file, group_vars_file]
     )
 
     class DummyCompletedProcess:
         def __init__(self, stdout: str):
             self.stdout = stdout
-            self.stderr = ''
+            self.stderr = ""
             self.returncode = 0
 
     def mock_run(*args, **kwargs):
-        return DummyCompletedProcess(stdout='ASCII text')  # simulate non-executable
+        return DummyCompletedProcess(
+            stdout="ASCII text"
+        )  # simulate non-executable
 
-    monkeypatch.setattr(subprocess, 'run', mock_run)
+    monkeypatch.setattr(subprocess, "run", mock_run)
 
     # Mock config lookup plugin to return extensions
     class DummyLookup:
         def run(self, terms, variables=None, **kwargs):
-            return [['.yml']]
+            return [[".yml"]]
 
     action_base._shared_loader_obj.lookup_loader.get.return_value = (
         DummyLookup()
     )
 
     task_vars = {
-        'inventory_hostname': 'testhost',
-        'inventory_file': str(inv_file),
-        'group_names': ['testgroup']
+        "inventory_hostname": "testhost",
+        "inventory_file": str(inv_file),
+        "group_names": ["testgroup"],
     }
 
     facts = action_base.get_inv(task_vars=task_vars)
 
-    assert facts['name'] == 'testhost'
-    assert facts['path'] == str(inv_file)
-    assert 'testgroup' in facts['groups']
-    assert 'all' in facts['groups']
-    assert host_vars_file.name in [Path(p).name for p in facts['vars_paths']]
-    assert group_vars_file.name in [Path(p).name for p in facts['vars_paths']]
-    assert 'exec' in facts, f"exec key missing in facts: {facts}"
-    assert facts['exec'] is False
+    assert facts["name"] == "testhost"
+    assert facts["path"] == str(inv_file)
+    assert "testgroup" in facts["groups"]
+    assert "all" in facts["groups"]
+    assert host_vars_file.name in [Path(p).name for p in facts["vars_paths"]]
+    assert group_vars_file.name in [Path(p).name for p in facts["vars_paths"]]
+    assert "exec" in facts, f"exec key missing in facts: {facts}"
+    assert facts["exec"] is False

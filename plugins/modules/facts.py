@@ -9,7 +9,7 @@
 #
 # This file is part of the o0_o.inventory Ansible Collection.
 
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 ---
 module: facts
 short_description: Gather facts related to the Ansible inventory
@@ -31,18 +31,18 @@ attributes:
     description: Only POSIX platforms are supported.
     support: full
     platforms: posix
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Gather inventory facts
   o0_o.inventory.facts:
 
 - name: Show inventory file path
   debug:
     msg: "Inventory path: {{ o0_inventory['path'] }}"
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 ansible_facts:
   description: Inventory-related facts from the controller.
   returned: always
@@ -70,4 +70,4 @@ ansible_facts:
           description: Paths to applicable host/group variable files
           type: list
           elements: str
-'''
+"""
