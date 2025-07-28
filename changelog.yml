@@ -3,6 +3,14 @@
 ---
 releases:
 
+  - "1.0.1":
+    changes:
+      changed:
+        - Standardized code formatting and PEP 8 compliance across
+          collection.
+        - Improved code quality with consistent string quoting and
+          formatting.
+
   - "1.0.0":
     changes:
       added:
